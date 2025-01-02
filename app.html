@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Box Breathing Exercise</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: "Arial", sans-serif;
+      background: linear-gradient(135deg, #4facfe, #00f2fe);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: #fff;
+    }
+    h1 {
+      font-size: 2.5rem;
+      margin-bottom: 10px;
+    }
+    #instruction {
+      font-size: 2rem;
+      font-weight: bold;
+      margin: 20px 0;
+      text-align: center;
+    }
+    #timer {
+      font-size: 1.5rem;
+      margin-bottom: 30px;
+    }
+    button {
+      padding: 15px 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      background: #ff6f61;
+      color: #fff;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background 0.3s;
+      margin: 10px;
+    }
+    button:hover {
+      background: #ff3f31;
+    }
+  </style>
+</head>
+<body>
+  <h1>Box Breathing Exercise</h1>
+  <div id="instruction">Ready?</div>
+  <div id="timer">Time: 0s</div>
+  <button id="startButton">Start Breathing</button>
+  <button id="resetButton" disabled>Reset</button>
+
+  <script>
+    let instruction = document.getElementById("instruction");
+    let timerDisplay = document.getElementById("timer");
+    let startButton = document.getElementById("startButton");
+    let resetButton = document.getElementById("resetButton");
+
+    let timer = 0;
+    let interval, timerInterval;
+    let steps = ["Breathe In", "Hold", "Breathe Out", "Hold"];
+    let stepIndex = 0;
+
+    function speakText(text) {
+      const utterance = new SpeechSynthesisUtterance(text);
+      utterance.rate = 1; // Adjust the speed if needed
+      utterance.pitch = 1; // Adjust the pitch if needed
+      speechSynthesis.speak(utterance);
+    }
+
+    function startBreathing() {
+      startButton.disabled = true; // Disable Start button during exercise
+      resetButton.disabled = false; // Enable Reset button
+
+      // Start the breathing cycle
+      interval = setInterval(() => {
+        let currentStep = steps[stepIndex];
+        instruction.textContent = currentStep;
+        speakText(currentStep); // Add voice prompt
+        stepIndex = (stepIndex + 1) % steps.length; // Cycle through steps
+      }, 4000); // 4 seconds for each step
+
+      // Start the timer
+      timerInterval = setInterval(() => {
+        timer++;
+        timerDisplay.textContent = `Time: ${timer}s`;
+      }, 1000); // Increment timer every second
+    }
+
+    function resetBreathing() {
+      clearInterval(interval); // Stop the breathing cycle
+      clearInterval(timerInterval); // Stop the timer
+      instruction.textContent = "Ready?"; // Reset instruction
+      timerDisplay.textContent = "Time: 0s"; // Reset timer display
+      timer = 0; // Reset timer counter
+      stepIndex = 0; // Reset breathing step index
+      startButton.disabled = false; // Enable Start button
+      resetButton.disabled = true; // Disable Reset button
+      speechSynthesis.cancel(); // Stop any ongoing speech
+    }
+
+    startButton.addEventListener("click", startBreathing);
+    resetButton.addEventListener("click", resetBreathing);
+  </script>
+</body>
+</html>
