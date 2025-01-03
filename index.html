@@ -55,71 +55,69 @@
   <button id="startButton">Start Breathing</button>
   <button id="resetButton" disabled>Reset</button>
 
-<script>
-  let instruction = document.getElementById("instruction");
-  let timerDisplay = document.getElementById("timer");
-  let startButton = document.getElementById("startButton");
-  let resetButton = document.getElementById("resetButton");
+  <script>
+    let instruction = document.getElementById("instruction");
+    let timerDisplay = document.getElementById("timer");
+    let startButton = document.getElementById("startButton");
+    let resetButton = document.getElementById("resetButton");
 
-  let timer = 0;
-  let timerInterval;
-  let steps = ["Breathe In", "Hold", "Breathe Out", "Hold"];
-  let stepIndex = 0;
-  let isBreathing = false;
+    let timer = 0;
+    let timerInterval;
+    let steps = ["Breathe In", "Hold", "Breathe Out", "Hold"];
+    let stepIndex = 0;
+    let isBreathing = false;
 
-  function speakText(text, callback) {
-    if ("speechSynthesis" in window) {
-      speechSynthesis.cancel(); // Cancel any ongoing speech
-      const utterance = new SpeechSynthesisUtterance(text);
-      utterance.rate = 1; // Adjust speed
-      utterance.pitch = 1; // Adjust pitch
-      utterance.onend = callback; // Call next step when the current speech ends
-      speechSynthesis.speak(utterance);
-    } else {
-      console.warn("Speech synthesis not supported on this browser.");
-      if (callback) callback(); // Ensure the flow continues if speechSynthesis isn't available
-    }
-  }
-
-  function startBreathing() {
-    if (isBreathing) return; // Prevent multiple instances
-    isBreathing = true;
-    startButton.disabled = true;
-    resetButton.disabled = false;
-
-    // Timer starts
-    timerInterval = setInterval(() => {
-      timer++;
-      timerDisplay.textContent = `Time: ${timer}s`;
-    }, 1000);
-
-    // Start breathing cycle
-    function nextStep() {
-      if (!isBreathing) return; // Stop if reset is triggered
-      let currentStep = steps[stepIndex];
-      instruction.textContent = currentStep;
-      stepIndex = (stepIndex + 1) % steps.length; // Move to the next step
-      speakText(currentStep, nextStep); // Chain the next step after speaking
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel(); // Cancel any ongoing speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1; // Adjust speed
+        utterance.pitch = 1; // Adjust pitch
+        speechSynthesis.speak(utterance);
+      } else {
+        console.warn("Speech synthesis not supported on this browser.");
+      }
     }
 
-    nextStep(); // Begin the cycle
-  }
+    function startBreathing() {
+      if (isBreathing) return; // Prevent multiple instances
+      isBreathing = true;
+      startButton.disabled = true;
+      resetButton.disabled = false;
 
-  function resetBreathing() {
-    isBreathing = false;
-    clearInterval(timerInterval); // Stop the timer
-    instruction.textContent = "Ready?"; // Reset the instruction
-    timerDisplay.textContent = "Time: 0s"; // Reset the timer display
-    timer = 0; // Reset the timer count
-    stepIndex = 0; // Reset the breathing step index
-    startButton.disabled = false; // Enable the Start button
-    resetButton.disabled = true; // Disable the Reset button
-    speechSynthesis.cancel(); // Stop any ongoing speech
-  }
+      // Timer starts
+      timerInterval = setInterval(() => {
+        timer++;
+        timerDisplay.textContent = `Time: ${timer}s`;
+      }, 1000);
 
-  startButton.addEventListener("click", startBreathing);
-  resetButton.addEventListener("click", resetBreathing);
-</script>
+      // Start breathing cycle
+      function nextStep() {
+        if (!isBreathing) return; // Stop if reset is triggered
+        let currentStep = steps[stepIndex];
+        instruction.textContent = currentStep;
+        speakText(currentStep); // Add voice prompt
+        stepIndex = (stepIndex + 1) % steps.length; // Move to the next step
+        setTimeout(nextStep, 4000); // Wait 4 seconds before the next step
+      }
 
+      nextStep(); // Begin the cycle
+    }
+
+    function resetBreathing() {
+      isBreathing = false;
+      clearInterval(timerInterval); // Stop the timer
+      instruction.textContent = "Ready?"; // Reset the instruction
+      timerDisplay.textContent = "Time: 0s"; // Reset the timer display
+      timer = 0; // Reset the timer count
+      stepIndex = 0; // Reset the breathing step index
+      startButton.disabled = false; // Enable the Start button
+      resetButton.disabled = true; // Disable the Reset button
+      speechSynthesis.cancel(); // Stop any ongoing speech
+    }
+
+    startButton.addEventListener("click", startBreathing);
+    resetButton.addEventListener("click", resetBreathing);
+  </script>
 </body>
 </html>
