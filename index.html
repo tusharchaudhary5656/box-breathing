@@ -66,29 +66,17 @@
     let steps = ["Breathe In", "Hold", "Breathe Out", "Hold"];
     let stepIndex = 0;
 
-function startBreathing() {
-  startButton.disabled = true;
-  resetButton.disabled = false;
-
-  function nextStep() {
-    let currentStep = steps[stepIndex];
-    instruction.textContent = currentStep;
-    speakTextWithCallback(currentStep, () => {
-      stepIndex = (stepIndex + 1) % steps.length; // Cycle through steps
-      nextStep(); // Move to the next step
-    });
-  }
-
-  nextStep(); // Start the first step
-
-  // Start the timer
-  timerInterval = setInterval(() => {
-    timer++;
-    timerDisplay.textContent = `Time: ${timer}s`;
-  }, 1000);
-}
-
-
+    function speakText(text) {
+      if ('speechSynthesis' in window) {
+        speechSynthesis.cancel(); // Cancel any ongoing speech
+        const utterance = new SpeechSynthesisUtterance(text);
+        utterance.rate = 1; // Adjust speed
+        utterance.pitch = 1; // Adjust pitch
+        speechSynthesis.speak(utterance);
+      } else {
+        console.warn("Speech synthesis not supported on this browser.");
+      }
+    }
 
     function startBreathing() {
       startButton.disabled = true; // Disable Start button during exercise
@@ -118,7 +106,7 @@ function startBreathing() {
       stepIndex = 0; // Reset breathing step index
       startButton.disabled = false; // Enable Start button
       resetButton.disabled = true; // Disable Reset button
-      speechSynthesis.cancel(); // Stop any ongoing speech
+      speechSynthesis.cancel(); // Stop any ongoing speech immediately
     }
 
     startButton.addEventListener("click", startBreathing);
