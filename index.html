@@ -66,19 +66,28 @@
     let steps = ["Breathe In", "Hold", "Breathe Out", "Hold"];
     let stepIndex = 0;
 
-function speakText(text) {
-  if ('speechSynthesis' in window) {
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.rate = 1; // Adjust speed
-    utterance.pitch = 1; // Adjust pitch
-    // Force immediate user-triggered playback
-    document.body.addEventListener('click', () => {
-      speechSynthesis.speak(utterance);
-    }, { once: true });
-  } else {
-    console.warn("Speech synthesis not supported on this browser.");
+function startBreathing() {
+  startButton.disabled = true;
+  resetButton.disabled = false;
+
+  function nextStep() {
+    let currentStep = steps[stepIndex];
+    instruction.textContent = currentStep;
+    speakTextWithCallback(currentStep, () => {
+      stepIndex = (stepIndex + 1) % steps.length; // Cycle through steps
+      nextStep(); // Move to the next step
+    });
   }
+
+  nextStep(); // Start the first step
+
+  // Start the timer
+  timerInterval = setInterval(() => {
+    timer++;
+    timerDisplay.textContent = `Time: ${timer}s`;
+  }, 1000);
 }
+
 
 
     function startBreathing() {
